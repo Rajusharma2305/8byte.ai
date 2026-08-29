@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Login to Docker Hub
         uses: docker/login-action@v4
@@ -37,22 +37,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Staging deployment
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Pull Docker Image
+        run: docker pull ${{ secrets.DOCKER_USERNAME }}/8byteorg:latest
+
+      - name: Run Staging Container
         run: |
-          echo "Deploying 8byteorg to STAGING"
-          echo "Docker image: ${{ secrets.DOCKER_USERNAME }}/8byteorg:latest"
-          echo "Staging deployment successful"
+          docker run -d \
+            --name 8byteorg-staging \
+            -p 3000:3000 \
+            ${{ secrets.DOCKER_USERNAME }}/8byteorg:latest
 
-
-  production:
-    name: Deploy to Production
-    needs: docker
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Production deployment
-        run: |
-          echo "Deploying 8byteorg to PRODUCTION"
-          echo "Docker image: ${{ secrets.DOCKER_USERNAME }}/8byteorg:latest"
-          echo "Production deployment successful"
+      - name: Check Staging Container
+        run: docker ps
