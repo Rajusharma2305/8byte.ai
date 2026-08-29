@@ -1,0 +1,46 @@
+name: 8byteorg CD
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+
+  docker:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: false
+          tags: 8byteorg:latest
+
+
+  staging:
+    name: Deploy to Staging
+    needs: docker
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to Staging
+        run: echo "8byteorg deployed to STAGING"
+
+
+  production:
+    name: Deploy to Production
+    needs: docker
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to Production
+        run: echo "8byteorg deployed to PRODUCTION"
