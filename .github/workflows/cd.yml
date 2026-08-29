@@ -3,13 +3,11 @@ name: 8byteorg CD
 on:
   push:
     branches:
-      - develop
       - main
 
 jobs:
-
-  docker:
-    name: Build and Push Docker Image
+  deploy:
+    name: Deploy to Staging
     runs-on: ubuntu-latest
 
     steps:
@@ -22,49 +20,15 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Push Image
+      - name: Build and Push Docker Image
         uses: docker/build-push-action@v7
         with:
           context: .
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/8byteorg:latest
 
-
-  staging:
-    name: Staging Deployment
-    needs: docker
-    runs-on: ubuntu-latest
-
-    if: github.ref == 'refs/heads/develop'
-
-    steps:
       - name: Deploy to Staging
         run: |
-          echo "================================"
-          echo "STAGING DEPLOYMENT"
-          echo "================================"
-          echo "Application: 8byteorg"
-          echo "Environment: Staging"
-          echo "Docker Image: ${{ secrets.DOCKER_USERNAME }}/8byteorg:latest"
-          echo "Deployment successful!"
-          echo "================================"
-
-
-  production:
-    name: Production Deployment
-    needs: docker
-    runs-on: ubuntu-latest
-
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Deploy to Production
-        run: |
-          echo "================================"
-          echo "PRODUCTION DEPLOYMENT"
-          echo "================================"
-          echo "Application: 8byteorg"
-          echo "Environment: Production"
-          echo "Docker Image: ${{ secrets.DOCKER_USERNAME }}/8byteorg:latest"
-          echo "Deployment successful!"
-          echo "================================"
+          echo "Deploying 8byteorg to STAGING"
+          echo "Docker image pushed successfully"
+          echo "Staging deployment successful"
